@@ -10,6 +10,7 @@ import SwiftUI
 struct VMScreen: View {
     
     @State private var vmLoader = VMLoaderCoordinator()
+    @State private var sshCoordinator = SSHCoordinator()
     @State private var showInspector: Bool = false
     @State private var columnVisibility = NavigationSplitViewVisibility.all
     @State private var sidebarState: SidebarState = .open
@@ -98,7 +99,8 @@ struct VMScreen: View {
         Sidebar(
             sidebarState: $sidebarState,
             bootIntoRecovery: $vmLoader.bootIntoRecovery,
-            width: 200,
+            sshCoordinator: sshCoordinator,
+            width: 280,
         )
         .clipShape(RoundedRectangle(cornerRadius: 8))
     }
