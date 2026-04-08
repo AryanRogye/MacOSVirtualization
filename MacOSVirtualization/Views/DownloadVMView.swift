@@ -1,5 +1,5 @@
 //
-//  ContentView.swift
+//  DownloadVMView.swift
 //  MacOSVirtualization
 //
 //  Created by Aryan Rogye on 4/7/26.
@@ -7,68 +7,58 @@
 
 import SwiftUI
 
-struct ContentView: View {
+struct DownloadVMView: View {
     
+    @Binding var appViewState: AppViewState
     @State private var installerCoordinator = InstallerCoordinator()
     
     var body: some View {
-        ZStack {
-            LinearGradient(
-                colors: [
-                    Color(nsColor: .windowBackgroundColor),
-                    Color.blue.opacity(0.08)
-                ],
-                startPoint: .topLeading,
-                endPoint: .bottomTrailing
-            )
-            .ignoresSafeArea()
+        VStack {
+            header
+                .padding()
             
-            VStack {
-                Spacer()
-                
-                VStack(alignment: .leading, spacing: 20) {
-                    header
-                    
-                    Divider()
-                    
-                    phaseSection
-                    
-                    if let progress = installerCoordinator.downloadProgress,
-                       installerCoordinator.installerPhase == .downloadingRestoreImage {
-                        progressSection(
-                            title: "Downloading Restore Image",
-                            value: progress
-                        )
-                    }
-                    
-                    if let progress = installerCoordinator.installProgress,
-                       installerCoordinator.installerPhase == .installingMacOS {
-                        progressSection(
-                            title: "Installing macOS",
-                            value: progress
-                        )
-                    }
-                    
-                    statusSection
-                    
-                    actions
-                }
-                .padding(28)
-                .frame(maxWidth: 520)
-                .background {
-                    RoundedRectangle(cornerRadius: 28, style: .continuous)
-                        .fill(.regularMaterial)
-                }
-                .overlay {
-                    RoundedRectangle(cornerRadius: 28, style: .continuous)
-                        .strokeBorder(.white.opacity(0.12))
-                }
-                .shadow(radius: 20, y: 10)
-                
-                Spacer()
+            Divider()
+            
+            phaseSection
+                .padding()
+            
+            
+            if let progress = installerCoordinator.downloadProgress,
+               installerCoordinator.installerPhase == .downloadingRestoreImage {
+                progressSection(
+                    title: "Downloading Restore Image",
+                    value: progress
+                )
+                .padding()
             }
-            .padding(32)
+            
+            if let progress = installerCoordinator.installProgress,
+               installerCoordinator.installerPhase == .installingMacOS {
+                progressSection(
+                    title: "Installing macOS",
+                    value: progress
+                )
+                .padding()
+            }
+            
+            statusSection
+                .padding()
+
+            actions
+                .padding()
+
         }
+        .padding()
+        .overlay {
+            RoundedRectangle(cornerRadius: 28, style: .continuous)
+                .strokeBorder(.white.opacity(0.12))
+        }
+        .frame(
+            maxWidth: .infinity,
+            maxHeight: .infinity,
+            alignment: .topLeading
+        )
+        .padding()
         .alert("Installation Error", isPresented: $installerCoordinator.showError) {
             Button("OK", role: .cancel) { }
         } message: {
@@ -77,7 +67,7 @@ struct ContentView: View {
     }
 }
 
-private extension ContentView {
+private extension DownloadVMView {
     
     var header: some View {
         VStack(alignment: .leading, spacing: 10) {
@@ -93,6 +83,7 @@ private extension ContentView {
                 .font(.callout)
                 .foregroundStyle(.secondary)
         }
+        .frame(maxWidth: .infinity, alignment: .leading)
     }
     
     var phaseSection: some View {
@@ -109,6 +100,7 @@ private extension ContentView {
                     .font(.body.weight(.medium))
             }
         }
+        .frame(maxWidth: .infinity, alignment: .leading)
     }
     
     var statusSection: some View {
@@ -134,9 +126,11 @@ private extension ContentView {
     }
     
     var actions: some View {
-        VStack {
+        HStack {
             HStack {
-                NavigationLink(destination: VMScreen()) {
+                Button{
+                    appViewState = .vm
+                } label: {
                     HStack {
                         Image(systemName: "macbook")
                         Text("Run VM")
@@ -147,6 +141,7 @@ private extension ContentView {
                 .controlSize(.large)
                 .disabled(isBusy || installerCoordinator.doesNeedToInstall)
             }
+            .frame(maxWidth: .infinity)
             HStack(spacing: 12) {
                 Button {
                     installerCoordinator.install()
@@ -167,6 +162,7 @@ private extension ContentView {
                         .font(.headline)
                 }
             }
+            .frame(maxWidth: .infinity)
         }
     }
     
@@ -243,5 +239,7 @@ private extension ContentView {
 }
 
 #Preview {
-    ContentView()
+    @Previewable @State var appViewState: AppViewState = .home
+    
+    DownloadVMView(appViewState: $appViewState)
 }

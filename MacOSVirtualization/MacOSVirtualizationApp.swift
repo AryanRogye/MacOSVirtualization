@@ -11,9 +11,8 @@ import SwiftUI
 struct MacOSVirtualizationApp: App {
     var body: some Scene {
         WindowGroup {
-            NavigationStack {
-                ContentView()
-            }
+            VMScreen()
         }
+        .windowStyle(.hiddenTitleBar)
     }
 }
