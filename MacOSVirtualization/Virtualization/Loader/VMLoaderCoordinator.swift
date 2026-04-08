@@ -21,7 +21,11 @@ class VMLoaderCoordinator {
     
     let loader = VirtualMachineLoader()
     
-    var loadInRecovery: Bool = false
+    var bootIntoRecovery: Bool = false
+    
+    var isPaused: Bool {
+        virtualMachine?.state == .paused
+    }
     
     public func load() {
         do {
@@ -90,7 +94,7 @@ class VMLoaderCoordinator {
     func startVirtualMachine() {
         guard let virtualMachine else { return }
         
-        if loadInRecovery {
+        if bootIntoRecovery {
             let options = VZMacOSVirtualMachineStartOptions()
             options.startUpFromMacOSRecovery = true
             
@@ -119,6 +123,38 @@ class VMLoaderCoordinator {
             self.virtualMachineResponder = nil
             
             self.load()
+        }
+    }
+    
+    func playVirtualMachine() {
+        guard let virtualMachine else { return }
+        virtualMachine.restoreMachineStateFrom(url: Constants.saveFileURL) { error in
+            if let error {
+                self.error = "Failed to restore machine state: \(error.localizedDescription)"
+                self.showError = true
+                return
+            }
+        }
+        resumeVirtualMachine()
+    }
+    
+    func pauseVirtualMachine() {
+        guard let virtualMachine else { return }
+        virtualMachine.pause { result in
+            switch result {
+            case .success(_):
+                break
+            case .failure(let e):
+                self.error = e.localizedDescription
+                self.showError = true
+                return
+            }
+        }
+        virtualMachine.saveMachineStateTo(url: Constants.saveFileURL) { error in
+            if let error {
+                self.error = error.localizedDescription
+                self.showError = true
+            }
         }
     }
     

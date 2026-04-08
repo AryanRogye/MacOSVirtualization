@@ -21,7 +21,8 @@ class InstallerCoordinator {
     
     var installerPhase: InstallerPhase = .idle
     let installer = MacOSVirtualMachineInstaller()
-    
+    let restoreImage = MacOSRestoreImage()
+
     var downloadProgress: Double?
     var installProgress: Double?
     var error: String?
@@ -57,7 +58,6 @@ class InstallerCoordinator {
         /// Set our installation phase to downloading restore image
         /// and set our objects
         installerPhase = .downloadingRestoreImage
-        let restoreImage = MacOSRestoreImage()
         
         /// we setup what happens when our download progress is valid
         restoreImage.onDownloadProgress = { [weak self] progress in

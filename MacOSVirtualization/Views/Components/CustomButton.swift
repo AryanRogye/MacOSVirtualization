@@ -1,5 +1,5 @@
 //
-//  SidebarIcon.swift
+//  CustomButton.swift
 //  MacOSVirtualization
 //
 //  Created by Aryan Rogye on 4/7/26.
@@ -7,39 +7,42 @@
 
 import SwiftUI
 
-struct SidebarIcon: View {
-    
-    @State private var isHoveringOverSidebar = false
+struct CustomButton: View {
+    var icon: String
+    var width: CGFloat = 21
+    var height: CGFloat = 17
     var action: () -> Void
     
-    var sidebarInnerColor: Color {
+    @State private var hovering = false
+
+    var innerColor: Color {
         return .white.opacity(
-            isHoveringOverSidebar ? 0.15 : 0
+            hovering ? 0.15 : 0
         )
     }
-    var sidebarOuterColor: Color {
+    var outerColor: Color {
         return .white.opacity(
-            isHoveringOverSidebar ? 0.2 : 0
+            hovering ? 0.2 : 0
         )
     }
     
     var body: some View {
         Button(action: action) {
-            Image(systemName: "sidebar.left")
+            Image(systemName: icon)
                 .resizable()
-                .frame(width: 21, height: 17)
+                .frame(width: width, height: height)
                 .padding(.horizontal, 3)
                 .padding(.vertical, 3)
                 .background {
                     RoundedRectangle(cornerRadius: 6)
-                        .fill(sidebarInnerColor)
-                        .stroke(sidebarOuterColor)
+                        .fill(innerColor)
+                        .stroke(outerColor)
                 }
         }
         .buttonStyle(.plain)
         .onHover { hovering in
-            isHoveringOverSidebar = hovering
+            self.hovering = hovering
         }
-        .animation(.snappy(duration: 0.2), value: isHoveringOverSidebar)
+        .animation(.snappy(duration: 0.2), value: hovering)
     }
 }

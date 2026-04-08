@@ -7,11 +7,14 @@
 
 import SwiftUI
 
-struct TopBar<SidebarIcon: View>: View {
+struct TopBar<SidebarIcon: View, PlayPauseIcon: View, ReloadButton: View>: View {
     
+    @Binding var appViewState: AppViewState
     @Binding var shouldShowSidebarIcon: Bool
     let height: CGFloat
     @ViewBuilder var sidebarIcon: () -> SidebarIcon
+    @ViewBuilder var playPauseIcon: () -> PlayPauseIcon
+    @ViewBuilder var reloadButton: () -> ReloadButton
 
     var shape: UnevenRoundedRectangle {
         UnevenRoundedRectangle(
@@ -27,7 +30,14 @@ struct TopBar<SidebarIcon: View>: View {
             if shouldShowSidebarIcon {
                 sidebarIcon()
             }
+            if appViewState == .vm {
+                reloadButton()
+            }
             Spacer()
+            
+            if appViewState == .vm {
+                playPauseIcon()
+            }
         }
         .padding(.horizontal, 8)
         .foregroundStyle(.black)

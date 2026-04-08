@@ -97,6 +97,7 @@ struct VMScreen: View {
     private func sidebar() -> some View {
         Sidebar(
             sidebarState: $sidebarState,
+            bootIntoRecovery: $vmLoader.bootIntoRecovery,
             width: 200,
         )
         .clipShape(RoundedRectangle(cornerRadius: 8))
@@ -107,19 +108,24 @@ struct VMScreen: View {
         _ shouldShowSidebarIconInTopBar: Binding<Bool>
     ) -> some View {
         
-        TopBar(
-            shouldShowSidebarIcon: shouldShowSidebarIconInTopBar,
-            height: topBarHeight
-        ) {
-            sidebarIcon()
-        }
-        .clipShape(
-            .rect(
-                topLeadingRadius: 8,
-                topTrailingRadius: 8
-            )
-        )
+    TopBar(
+        appViewState: $appViewState,
+        shouldShowSidebarIcon: shouldShowSidebarIconInTopBar,
+        height: topBarHeight
+    ) {
+        sidebarIcon()
+    } playPauseIcon: {
+        playPauseButton()
+    } reloadButton: {
+        reloadButton()
     }
+    .clipShape(
+        .rect(
+            topLeadingRadius: 8,
+            topTrailingRadius: 8
+        )
+    )
+}
     
     @ViewBuilder
     private func virtualMachineView() -> some View {
@@ -136,7 +142,7 @@ struct VMScreen: View {
     
     @ViewBuilder
     private func sidebarIcon() -> some View {
-        SidebarIcon(action: {
+        CustomButton(icon: "sidebar.left", action: {
             if sidebarState == .closed {
                 withAnimation(.spring) {
                     sidebarState = .open
@@ -147,6 +153,24 @@ struct VMScreen: View {
                 }
             }
         })
+    }
+    
+    @ViewBuilder
+    private func playPauseButton() -> some View {
+        CustomButton(icon: vmLoader.isPaused ? "play" : "pause", width: 10, height: 16, action: {
+            if vmLoader.isPaused {
+                vmLoader.playVirtualMachine()
+            } else {
+                vmLoader.pauseVirtualMachine()
+            }
+        })
+    }
+    
+    @ViewBuilder
+    private func reloadButton() -> some View {
+        CustomButton(icon: "arrow.clockwise", width: 15) {
+            vmLoader.reloadVirtualMachine()
+        }
     }
 }
 
